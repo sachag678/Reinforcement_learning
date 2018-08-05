@@ -1,3 +1,4 @@
+
 """Learn how to play cartpole with policy gradient and keras."""
 
 import keras
@@ -72,7 +73,7 @@ def create_train_function(alpha, model, output_dim):
                          updates=updates)
 
 # Hyperparams
-max_episodes = 1000
+max_episodes = 300
 alpha = 0.01
 gamma = 0.95
 
