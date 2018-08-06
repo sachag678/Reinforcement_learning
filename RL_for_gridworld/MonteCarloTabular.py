@@ -1,12 +1,18 @@
 """Sacha Gunaratne | github@sachag678"""
 from collections import defaultdict
+import numpy as np
 
 class MonteCarloTabular():
     """Learns optimum behavior using the iterative tabular MC method."""
 
-    def __init__(self, alpha=0.1, gamma = 0.99):
+    def __init__(self, alpha=0.01, gamma = 0.95):
         """Initialize."""
-        self.state_values = defaultdict(int)
+
+        def value_factory(value):
+            """Used to initialize the values."""
+            return lambda: value
+
+        self.state_values = defaultdict(value_factory(int()))
         self.alpha = alpha
         self.gamma = gamma
     
@@ -23,11 +29,11 @@ class MonteCarloTabular():
         """
         discounted_rewards = self.discount_reward(rewards)
         for state, reward in zip(states, discounted_rewards):
-            self.state_values[self.convert_to_immutable(state)] = self.state_values[self.convert_to_immutable(state)] + self.alpha(reward - self.get_value(state))
+            self.state_values[self.convert_to_immutable(state)] = self.state_values[self.convert_to_immutable(state)] + self.alpha * (reward - self.get_value(state))
     
     def convert_to_immutable(self, state):
         """Converts the numpy array into a immutable tuple."""
-        reshaped_state = state.reshape(1, state.shape[0]*state.shape[1]*state.shape[2])
+        reshaped_state = state.reshape(1, state.shape[0]*state.shape[1]*state.shape[2]).ravel()
         return tuple(reshaped_state.tolist())
     
     def discount_reward(self, rewards):
@@ -39,6 +45,14 @@ class MonteCarloTabular():
                 temp_r += (self.gamma**index)*r
             discounted_rewards.append(temp_r)
         return discounted_rewards
-
+    
+    def show_state_value(self):
+        """Visualizes the state_value function."""
+        state_value_visuals = np.zeros((4,4))
+        for k, v in self.state_values.items():
+            index = np.where(np.asarray(k).reshape((3,4,4))[0]==1)
+            state_value_visuals[index[0][0]][index[1][0]] = v
+        
+        print(state_value_visuals)
 
 

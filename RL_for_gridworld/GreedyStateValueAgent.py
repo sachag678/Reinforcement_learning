@@ -10,12 +10,14 @@ class GreedyStateValueAgent(Agent):
         using an epsilon-greedy policy.
         """ 
         if self.epsilon > np.random.rand():
-            return np.random.choice(range(len(self.num_actions)))
+            return np.random.choice(range(self.num_actions))
         else:
             state_values = [] 
-            for action in range(len(self.num_actions)):
+            for action in range(self.num_actions):
                 state_values.append(self.get_state_value(move(action, state)[0]))
-        return np.array(state_values).argmax()
+            state_values = np.array(state_values)
+            indices = np.where(state_values == state_values.max())[0]
+            return np.random.choice(indices)
 
     def get_state_value(self, state):
         """Get the state value using the model."""
@@ -24,3 +26,7 @@ class GreedyStateValueAgent(Agent):
     def update(self, states, rewards, actions):
         """Update the model using the saved games states, rewards and actions."""
         self.model.batch_update(states, rewards, actions)
+    
+    def show_state_value(self):
+        """Visualizes the state_value function."""
+        self.model.show_state_value()

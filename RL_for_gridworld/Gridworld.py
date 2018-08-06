@@ -75,9 +75,9 @@ def move(action, state):
 def get_reward(state):
     """Calculate reward given a state."""
     if found_gold(state):
-        return 9
+        return 100
     elif oh_no_dragon(state):
-        return -101
+        return -10
     else:
         return -1.0  
     
