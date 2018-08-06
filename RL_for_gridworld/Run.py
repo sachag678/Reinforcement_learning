@@ -4,6 +4,7 @@ from Gridworld import init_state, move, oh_no_dragon, found_gold
 from RandomAgent import RandomAgent
 from GreedyStateValueAgent import GreedyStateValueAgent
 from MonteCarloTabular import MonteCarloTabular
+from TemporalDifferenceTabular import TemporalDifferenceTabular
 
 def train(max_episodes, agent):
     """Run episodes of gridworld and train the agent.
@@ -59,7 +60,7 @@ def test(agent):
             break
 
 if __name__ == '__main__':
-    model = MonteCarloTabular()
+    model = TemporalDifferenceTabular()
     agent = GreedyStateValueAgent(model = model, epsilon=0.2)
     for i in range(10):
         agent = train(100, agent)
