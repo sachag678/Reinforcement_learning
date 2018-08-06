@@ -1,6 +1,6 @@
 """Sacha Gunaratne | github@sachag678"""
 import numpy as np
-from Agent import Agent
+from Agents.Agent import Agent
 from Gridworld import move
 
 class GreedyStateValueAgent(Agent):

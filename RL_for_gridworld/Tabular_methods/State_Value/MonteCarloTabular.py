@@ -1,5 +1,5 @@
 """Sacha Gunaratne | github@sachag678"""
-from StateValueTabular import StateValueTabular
+from Tabular_methods.State_Value.StateValueTabular import StateValueTabular
 
 class MonteCarloTabular(StateValueTabular):
     """Learns optimum behavior using the iterative tabular MC method."""

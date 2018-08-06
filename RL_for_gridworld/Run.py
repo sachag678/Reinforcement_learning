@@ -1,10 +1,10 @@
 """Sacha Gunaratne | github@sachag678"""
 import numpy as np
 from Gridworld import init_state, move, oh_no_dragon, found_gold
-from RandomAgent import RandomAgent
-from GreedyStateValueAgent import GreedyStateValueAgent
-from MonteCarloTabular import MonteCarloTabular
-from TemporalDifferenceTabular import TemporalDifferenceTabular
+from Agents.RandomAgent import RandomAgent
+from Agents.GreedyStateValueAgent import GreedyStateValueAgent
+from Tabular_methods.State_Value.MonteCarloTabular import MonteCarloTabular
+from Tabular_methods.State_Value.TemporalDifferenceTabular import TemporalDifferenceTabular
 
 def train(max_episodes, agent):
     """Run episodes of gridworld and train the agent.
