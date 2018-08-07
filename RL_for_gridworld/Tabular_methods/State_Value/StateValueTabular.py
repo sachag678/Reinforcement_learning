@@ -27,14 +27,14 @@ class StateValueTabular():
     
     def convert_to_immutable(self, state):
         """Converts the numpy array into a immutable tuple."""
-        reshaped_state = state.reshape(1, state.shape[0]*state.shape[1]*state.shape[2]).ravel()
+        reshaped_state = state.reshape(1, state.shape[0] * state.shape[1] * state.shape[2]).ravel()
         return tuple(reshaped_state.tolist())
     
-    def show_state_value(self):
+    def display_model(self):
         """Visualizes the state_value function."""
-        state_value_visuals = np.zeros((4,4))
+        state_value_visuals = np.zeros((4, 4))
         for k, v in self.state_values.items():
-            index = np.where(np.asarray(k).reshape((3,4,4))[0]==1)
+            index = np.where(np.asarray(k).reshape((3, 4, 4))[0] == 1)
             state_value_visuals[index[0][0]][index[1][0]] = v
         
         sns.heatmap(state_value_visuals, linewidth=0.5)

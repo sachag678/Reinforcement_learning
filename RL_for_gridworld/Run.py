@@ -3,8 +3,10 @@ import numpy as np
 from Gridworld import init_state, move, oh_no_dragon, found_gold
 from Agents.RandomAgent import RandomAgent
 from Agents.GreedyStateValueAgent import GreedyStateValueAgent
+from Agents.GreedyStateActionValueAgent import GreedyStateActionValueAgent
 from Tabular_methods.State_Value.MonteCarloTabular import MonteCarloTabular
 from Tabular_methods.State_Value.TemporalDifferenceTabular import TemporalDifferenceTabular
+from Tabular_methods.Action_State_Value.SARSATabular import SARSATabular
 
 def train(max_episodes, agent):
     """Run episodes of gridworld and train the agent.
@@ -22,12 +24,12 @@ def train(max_episodes, agent):
         state, done = init_state()
 
         while not done:
-
-            new_state, reward, done = move(agent.choose_action(state),state)
+            action = agent.choose_action(state)
+            new_state, reward, done = move(action, state)
 
             states.append(new_state)
             rewards.append(reward)
-            actions.append(actions)
+            actions.append(action)
 
             if done:
                 agent.update(states, rewards, actions)
@@ -60,16 +62,16 @@ def test(agent):
             break
 
 if __name__ == '__main__':
-    model = TemporalDifferenceTabular()
-    agent = GreedyStateValueAgent(model = model, epsilon=0.2)
-    for i in range(10):
+    model = SARSATabular()
+    agent = GreedyStateActionValueAgent(model = model, epsilon=0.3)
+    for i in range(30):
         agent = train(100, agent)
         agent.epsilon = 0
         test(agent)
-        agent.epsilon = 0.2
+        agent.epsilon = 0.3
     
-    agent.show_state_value()
-    
+    agent.display_model()
+
 
     
 
