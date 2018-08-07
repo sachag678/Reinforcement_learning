@@ -5,7 +5,7 @@ import numpy as np
 class SARSATabular():
     """Learns optimal behavior using the SARSA update."""
 
-    def __init__(self, alpha = 0.01, gamma = 0.99, num_actions = 4):
+    def __init__(self, alpha = 0.01, gamma = 1, num_actions = 4):
 
         def value_factory():
             """Used to initialize the values to zeros."""
