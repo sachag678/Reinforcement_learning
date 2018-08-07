@@ -3,18 +3,18 @@ from collections import defaultdict
 import numpy as np
 from Tabular_methods.Action_State_Value.StateActionValueTabular import StateActionValueTabular
 
-class SARSATabular(StateActionValueTabular):
-    """Learns optimal behavior using the SARSA update."""
+class QLearningTabular(StateActionValueTabular):
+    """Learns optimal behavior using the Q Learning update."""
 
     def batch_update(self, states, rewards, actions):
-        """Implements the SARSA update.
-            Q(S, A) = Q(S, A) + alpha ((R + gamma * Q(S', A')) - Q(S, A))
+        """Implements the Q Learning update.
+            Q(S, A) = Q(S, A) + alpha ((R + gamma * max(Q(S', A'))) - Q(S, A))
         """
         for index, (state, reward, action) in enumerate(zip(states, rewards, actions)):
             if index < len(states) - 1:
-                actions_vals = self.get_value(states[index + 1])
-                action_val = actions_vals[actions[index + 1]]
-                sarsa_target = reward + self.gamma * (action_val)
+                actions_vals = np.array(self.get_value(states[index + 1]))
+                max_action_val = np.random.choice(actions_vals[np.where(actions_vals == actions_vals.max())[0]])
+                sarsa_target = reward + self.gamma * (max_action_val)
             else:
                 sarsa_target = reward
             

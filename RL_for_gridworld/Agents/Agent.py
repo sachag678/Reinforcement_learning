@@ -17,5 +17,6 @@ class Agent():
         """Update the behavior mechanism."""
         pass
     
-    def get_state_action_values(self, state):
-        """Get the value for each action given the state."""
+    def get_value(self, state):
+        """Get the state value using the model."""
+        return self.model.get_value(state)

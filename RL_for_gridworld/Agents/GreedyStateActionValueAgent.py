@@ -4,6 +4,7 @@ from Agents.Agent import Agent
 from Gridworld import move
 
 class GreedyStateActionValueAgent(Agent):
+    """Uses State Action Values to inform its behavior."""
 
     def choose_action(self, state):
         """Determines the value of taking each action from a given state and then chooses an action 
@@ -17,10 +18,6 @@ class GreedyStateActionValueAgent(Agent):
             indices = np.where(state_action_values == state_action_values.max())[0]
             return np.random.choice(indices)
 
-    def get_value(self, state):
-        """Get the state value using the model."""
-        return self.model.get_value(state)
-    
     def update(self, states, rewards, actions):
         """Update the model using the saved games states, rewards and actions."""
         self.model.batch_update(states, rewards, actions)
