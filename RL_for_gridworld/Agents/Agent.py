@@ -14,8 +14,8 @@ class Agent():
         raise NotImplementedError('This should be implemented.')
     
     def update(self, states, rewards, actions):
-        """Update the behavior mechanism."""
-        pass
+        """Update the model using the saved games states, rewards and actions."""
+        self.model.batch_update(states, rewards, actions)
     
     def get_value(self, state):
         """Get the state value using the model."""

@@ -18,10 +18,6 @@ class GreedyStateActionValueAgent(Agent):
             indices = np.where(state_action_values == state_action_values.max())[0]
             return np.random.choice(indices)
 
-    def update(self, states, rewards, actions):
-        """Update the model using the saved games states, rewards and actions."""
-        self.model.batch_update(states, rewards, actions)
-    
     def display_model(self):
         """Visualizes the state_value function."""
         self.model.display_model()
