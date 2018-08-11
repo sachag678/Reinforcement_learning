@@ -1,5 +1,7 @@
 """Sacha Gunaratne | github@sachag678"""
 import numpy as np
+import matplotlib.pyplot as plt
+
 from Gridworld import init_state, move, oh_no_dragon, found_gold
 from Agents.RandomAgent import RandomAgent
 from Agents.GreedyStateValueAgent import GreedyStateValueAgent
@@ -18,8 +20,9 @@ def train(max_episodes, agent):
         return:
                 agent - a trained agent
     """
+    episode_rewards = []
 
-    for _ in range(max_episodes):
+    for epoch in range(max_episodes):
         states, rewards, actions = [], [], []
         state, done = init_state()
 
@@ -32,11 +35,14 @@ def train(max_episodes, agent):
             actions.append(action)
 
             if done:
+                episode_rewards.append(np.array(rewards).sum())
                 agent.update(states, rewards, actions)
             
+            if agent.epsilon >= 0.05:
+                agent.epsilon -= 1/max_episodes
             state = new_state
     
-    return agent
+    return agent, episode_rewards
 
 def test(agent):
     """Test the trained agent in a single episode of the gridworld game."""
@@ -60,17 +66,30 @@ def test(agent):
         if num_moves > 20:
             print('Not enough learning!')
             break
+    
+def moving_average(dist, window):
+    """Calculate the moving average of a distribution of numbers given a time window."""
+    if window >= len(dist):
+        return dist
+    ma = []
+    for i in range(len(dist) - window):
+        ma.append(np.array(dist[i: i + window]).mean())
+    return ma
 
 if __name__ == '__main__':
-    model = SARSATabular()
-    agent = GreedyStateActionValueAgent(model = model, epsilon=0.3)
-    for i in range(30):
-        agent = train(100, agent)
-        agent.epsilon = 0
-        test(agent)
-        agent.epsilon = 0.3
+    model = TemporalDifferenceTabular()
+    agent = GreedyStateValueAgent(model = model, epsilon=0.5)
+    agent, episode_rewards = train(100, agent)
+    agent.epsilon = 0
+    test(agent)
     
     agent.display_model()
+
+    plt.plot(moving_average(episode_rewards, 10))
+    plt.show()
+
+
+
 
 
     
