@@ -1,0 +1,4 @@
+
+g++ -I ~/Repos/eigen/ program.cpp -o program
+
+./program

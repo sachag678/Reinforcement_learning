@@ -1,90 +1,90 @@
 #include <iostream>
 #include <chrono>
-#include <vector>
+#include <map>
+#include <Eigen/Dense>
+#include <Eigen/Eigen>
+#include <math.h>
 
 using namespace std;
 using namespace std::chrono;
+using namespace Eigen; 
 
 class Net {
 
 	public: 
-		vector<double*> weights;
-		int inputSize;
-		int outputSize;
-		int hidddenSize;
-		int numHiddenLayers;
+		MatrixXd w1 = MatrixXd::Ones(10, 10);
+		MatrixXd w2 = MatrixXd::Ones(10, 1);
 	
-	double initializeWeights(int inputSize, int outputSize, int hiddenSize, int numHiddenLayers){
-		inputSize = inputSize;
-		outputSize = outputSize;
-		hiddenSize = hiddenSize;
-		numHiddenLayers = numHiddenLayers;
-
-		double* w1 = new double[inputSize][hiddenSize];
-		double* wfinal = new double[hiddenSize][outputSize];
-
-		for(int i=0;i<inputSize;++i){
-			for(int j=0;j<hiddenSize;++j){
-				w1[i][j] = 1;
-			}
+	double relu(double val){
+		if(val< 0){
+			return 0;
+		}else{
+			return val;
 		}
+	}
 
-		vector[0] = w1;
-
-		int count = 1;
-		for(int i =0;i<numHiddenLayers;++i){
-			double * w = new double[hiddenSize][hiddenSize];
-
-			for(int i=0;i<inputSize;++i){
-				for(int j=0;j<hiddenSize;++j){
-					w[i][j] = 1;
-				}
-			}
-			vector[count] = w;
-			count = count + 1;
-		}
-		
-		for(int i=0;i<hiddenSize;++i){
-			for(int j=0;j<hiddenSize;++j){
-				wfinal[i][j] = 1;
-			}
-		}
-
-		vector[count] = wfinal;
-
+	double tanh(double val){
+		return tanh(val);	
 	}
 	
-	double forward(double input []){
-		double h1[10];
+	MatrixXd forward(MatrixXd input){
+		MatrixXd h1 = w1*input;
 		
-		for(int i=0;i<10;++i){
-			double sum = 0;
-			for(int j=0;j<10;++j){
-				sum= sum + input[i]*vector[0][i][j];
+		for(int i=0;i<h1.rows();++i){
+			for(int j=0;j<h1.cols();++j){
+				h1(i,j) = relu(h1(i, j));
+				}
 			}
-			//Relu
-			if(sum<0){
-				sum = 0;
-			}	
-			h1[i] = sum;
-		}
-		
-		double output = 0;
-		for(int i=0;i<10;++i){
-			output = output + h1[i]*vector[vector.length-1][i];
-		}
-		return output;
+
+		MatrixXd h2 = w2.transpose()*h1;
+		return h2;
 	}
 
 };
+
+class FasterNet {
+
+	public:
+		double w1 [10][10];
+		double w2 [10][1];
+	
+	void initialize(){
+		cout << sizeof(w1.length) << endl;
+		
+		for(int i=0;i<10;++i){
+			for(int j=0;j<10;++j){
+				w1[i][j] = 1;
+			}
+			w2[i][0] = 1;
+		}
+	}
+
+	double forward(double input []){
+		double h1 [10];
+		for(int i=0;i<10;++i){
+			double sum = 0;
+			for(int j=0;j<10;++j){
+				sum = sum + input[j]*w1[i][j];
+			}
+			if(sum<0){
+				sum = 0;
+			}
+			h1[i] = sum;
+		}
+		
+		double h2 = 0;
+		for(int j=0; j<10;++j){
+			h2 = h2 + h1[j]*w2[j][0];
+		}
+		return h2;
+	}
+};
+
 //0.0048 time to beat.
 int main(){
 	Net net;
-
-	net.initializeWeights();
+	MatrixXd input = MatrixXd::Ones(10, 1);
 	
-	double input [10] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-
     	auto start = high_resolution_clock::now();
 	for(int i=0; i<1000;++i){
 		net.forward(input);
@@ -92,6 +92,21 @@ int main(){
 
     	auto stop = high_resolution_clock::now();
     	auto duration = duration_cast<microseconds>(stop - start);
+	
+    	std::cout <<"iterative_factorial : " << duration.count() << std::endl;
+
+	FasterNet fnet;
+	fnet.initialize();
+
+	double input2 [] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+    	start = high_resolution_clock::now();
+	for(int i=0; i<1000;++i){
+		fnet.forward(input2);
+	}
+
+    	stop = high_resolution_clock::now();
+    	duration = duration_cast<microseconds>(stop - start);
 	
     	std::cout <<"iterative_factorial : " << duration.count() << std::endl;
 
