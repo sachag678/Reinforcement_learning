@@ -1,10 +1,8 @@
 #include <iostream>
-#include <chrono>
-#include <map>
+#include <vector>
 #include <math.h>
 
 using namespace std;
-using namespace std::chrono;
 
 class FasterNet {
 
@@ -13,7 +11,7 @@ class FasterNet {
 		double w2 [2][1];
 		double h1 [2];
 		double h2;
-		double alpha = 0.01;
+		double alpha = 0.001;
 	
 	void initialize(){
 		
@@ -87,11 +85,11 @@ Pos move(Pos pos, int move){
 	}
 }
 
-int select_action(Pos pos, FasterNet fnet){
+int select_action(Pos pos, FasterNet fnet, int eps){
 		double max;
 		double qval = 0;
 		int move;
-		if(((double) rand() / (RAND_MAX))>0.3){
+		if(((double) rand() / (RAND_MAX))>eps){
 			if(pos.row+1 < 5){
 				max = fnet.forward(new double [2]{pos.row+1, pos.col});
 				move = 2;
@@ -118,9 +116,27 @@ int select_action(Pos pos, FasterNet fnet){
 				}
 			}
 		}else{	
+			int actionCount = 0;
+			std::vector<int> availableActions;	
+			if(pos.row+1 < 5){
+				actionCount ++;
+				availableActions.push_back(2);
+			}
+			if(pos.row-1 >= 0){
+				actionCount ++;
+				availableActions.push_back(3);
+			}
+			if(pos.col-1 >= 0){
+				actionCount ++;
+				availableActions.push_back(1);
+			}
+			if(pos.col+1 < 5){
+				actionCount ++;
+				availableActions.push_back(0);
+			}
 			//choose actions that are available randomyl.
-			move = rand() % 4;
-		
+			int index = rand() % actionCount;
+			move = availableActions[index];
 		}
 	return move;
 }
@@ -144,6 +160,7 @@ void value_fcn(FasterNet fnet){
 		}
 		cout << endl;
 	}
+	cout << "----------------------------------------------------" << endl;
 }
 
 //keras: 2800 microseconds
@@ -154,24 +171,40 @@ int main(){
 
 	FasterNet fnet;
 	fnet.initialize();
-	value_fcn(fnet);
+	//value_fcn(fnet);
+	int finalRow = 4;
+	int finalCol = 4;
 
-	Pos pos = Pos{1, 3};
+	for(int i=0;i<10;i++){
+		Pos pos = Pos{0, 0};
+		Pos new_pos;
+		int numSteps = 0;
+		while (1){ 
+			new_pos = move(pos, select_action(pos, fnet, 0.3));
+			if(new_pos.row==finalRow & new_pos.col==finalCol){
+				break;
+			}
+			fnet = update(fnet, pos, new_pos);
+			pos = new_pos;
+			numSteps++;
+		}
+		//cout << "Number of Steps: "<< numSteps + 1 << endl;
+		//value_fcn(fnet);
+	}
+
+	cout << "Training complete!" << endl;
+	Pos pos = Pos{0, 0};
 	Pos new_pos;
-
-	while (1){ 
-		cout << pos.row <<", " <<pos.col << endl;
-		new_pos = move(pos, select_action(pos, fnet));
-		if(new_pos.row==4 & new_pos.col==1){
-			cout << new_pos.row <<", " <<new_pos.col << endl;
+	while (1){
+		//cout << pos.row << ", " << pos.col << endl;	
+		new_pos = move(pos, select_action(pos, fnet, 0));
+		if(new_pos.row==finalRow & new_pos.col==finalCol){
+			//cout << new_pos.row << ", " << new_pos.col << endl;	
 			break;
 		}
 		fnet = update(fnet, pos, new_pos);
-		///value_fcn(fnet);
 		pos = new_pos;
 	}
-
-	
-	
+	cout << "Testing complete!" << endl;
 	return 0;
 }
