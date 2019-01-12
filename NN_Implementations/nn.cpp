@@ -1,70 +1,35 @@
 #include <iostream>
 #include <chrono>
 #include <map>
-#include <Eigen/Dense>
-#include <Eigen/Eigen>
 #include <math.h>
 
 using namespace std;
 using namespace std::chrono;
-using namespace Eigen; 
-
-class Net {
-
-	public: 
-		MatrixXd w1 = MatrixXd::Ones(10, 10);
-		MatrixXd w2 = MatrixXd::Ones(10, 1);
-	
-	double relu(double val){
-		if(val< 0){
-			return 0;
-		}else{
-			return val;
-		}
-	}
-
-	double tanh(double val){
-		return tanh(val);	
-	}
-	
-	MatrixXd forward(MatrixXd input){
-		MatrixXd h1 = w1*input;
-		
-		for(int i=0;i<h1.rows();++i){
-			for(int j=0;j<h1.cols();++j){
-				h1(i,j) = relu(h1(i, j));
-				}
-			}
-
-		MatrixXd h2 = w2.transpose()*h1;
-		return h2;
-	}
-
-};
 
 class FasterNet {
 
 	public:
-		double w1 [10][10];
-		double w2 [10][1];
+		double w1 [2][2];
+		double w2 [2][1];
+		double h1 [2];
+		double h2;
+		double alpha = 1;
 	
 	void initialize(){
-		cout << sizeof(w1.length) << endl;
 		
-		for(int i=0;i<10;++i){
-			for(int j=0;j<10;++j){
+		for(int i=0;i<2;++i){
+			for(int j=0;j<2;++j){
 				w1[i][j] = 1;
 			}
 			w2[i][0] = 1;
 		}
 	}
 
-	double forward(double input []){
-		double h1 [10];
-		for(int i=0;i<10;++i){
+	double forward(double in []){
+		for(int i=0;i<2;++i){
 			double sum = 0;
-			for(int j=0;j<10;++j){
-				sum = sum + input[j]*w1[i][j];
+			for(int j=0;j<2;++j){
+				sum = sum + in[j]*w1[i][j];
 			}
 			if(sum<0){
 				sum = 0;
@@ -72,43 +37,122 @@ class FasterNet {
 			h1[i] = sum;
 		}
 		
-		double h2 = 0;
-		for(int j=0; j<10;++j){
+		h2 = 0;
+		for(int j=0; j<2;++j){
 			h2 = h2 + h1[j]*w2[j][0];
 		}
 		return h2;
 	}
+
+	void fit(double in[], double y){
+		h2 = forward(in);
+		double h2_delta = y - h2;
+		
+		double h1_delta[2];
+		for(int i =0;i<2;++i){
+			if(h2_delta*w2[i][0]>0){
+				h1_delta[i] = h2_delta*w2[i][0];
+			}else{
+				h1_delta[i] = 0;
+			}
+		}
+
+		//update weights
+		for(int i=0; i<2;++i){
+			for(int j=0; j<2;++j){
+				w1[i][j] = w1[i][j] - alpha*in[i]*h1_delta[j];
+			}
+			w2[i][0]=w2[i][0] - alpha*h1[i]*h2_delta;
+		}
+	}
 };
 
-//0.0048 time to beat.
-int main(){
-	Net net;
-	MatrixXd input = MatrixXd::Ones(10, 1);
-	
-    	auto start = high_resolution_clock::now();
-	for(int i=0; i<1000;++i){
-		net.forward(input);
-	}
+struct Pos{
+	double row;
+	double col;
+};
 
-    	auto stop = high_resolution_clock::now();
-    	auto duration = duration_cast<microseconds>(stop - start);
-	
-    	std::cout <<"iterative_factorial : " << duration.count() << std::endl;
+Pos move(Pos pos, int move){
+	if(move==0){
+		return Pos{pos.row, pos.col+1};
+	}
+	if(move==1){
+		return Pos{pos.row, pos.col-1};
+	}
+	if(move==2){
+		return Pos{pos.row+1, pos.col};
+	}
+	if(move==3){
+		return Pos{pos.row-1, pos.col};
+	}
+}
+
+int select_action(Pos pos, FasterNet fnet){
+		double max;
+		double qval = 0;
+		int move;
+
+		if(pos.row+1 < 5){
+			max = fnet.forward(new double [2]{pos.row+1, pos.col});
+			move = 2;
+		}
+		if(pos.row-1 >= 0){
+			qval = fnet.forward(new double [2]{pos.row-1, pos.col});
+			if(max < qval){
+				max = qval;
+				move = 3;
+			}
+		}
+		if(pos.col-1 >= 0){
+			qval = fnet.forward(new double [2]{pos.row, pos.col-1});
+			if(max < qval){
+				max = qval;
+				move = 1;
+			}
+		}
+		if(pos.col+1 < 5){
+			qval = fnet.forward(new double [2]{pos.row, pos.col+1});
+			if(max < qval){
+				max = qval;
+				move = 0;
+			}
+		}
+	return move;
+}
+
+void update(FasterNet fnet, Pos pos){
+
+}
+
+//keras: 2800 microseconds
+//fasterNet: 206 microseconds
+//net: 2000 microseconds
+//fortran: 850 microseconds- seem to be fluctuating between 1200-170 us
+int main(){
 
 	FasterNet fnet;
 	fnet.initialize();
 
-	double input2 [] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-
-    	start = high_resolution_clock::now();
-	for(int i=0; i<1000;++i){
-		fnet.forward(input2);
+	Pos pos = Pos{1, 3};
+	
+	while (1) 
+	{	
+		cout << pos.row <<", " <<pos.col << endl;
+		pos = move(pos, select_action(pos, fnet));
+		if(pos.row==4 & pos.col==4){
+			cout << pos.row <<", " <<pos.col << endl;
+			break;
+		}
+		update(fnet, pos);
 	}
 
-    	stop = high_resolution_clock::now();
-    	duration = duration_cast<microseconds>(stop - start);
+	for(int i=0;i<5;i++){
+		for(int j=0;j<5;j++){
+			cout << fnet.forward(new double [2]{double(i), double(j)}) << "  ";
+		}
+		cout << endl;
+	}
 	
-    	std::cout <<"iterative_factorial : " << duration.count() << std::endl;
-
+	
 	return 0;
 }
