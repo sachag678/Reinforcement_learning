@@ -13,15 +13,15 @@ class FasterNet {
 		double w2 [2][1];
 		double h1 [2];
 		double h2;
-		double alpha = 1;
+		double alpha = 0.01;
 	
 	void initialize(){
 		
 		for(int i=0;i<2;++i){
 			for(int j=0;j<2;++j){
-				w1[i][j] = 1;
+				w1[i][j] = ((double) rand() / (RAND_MAX));
 			}
-			w2[i][0] = 1;
+			w2[i][0] = ((double) rand() / (RAND_MAX));
 		}
 	}
 
@@ -91,37 +91,59 @@ int select_action(Pos pos, FasterNet fnet){
 		double max;
 		double qval = 0;
 		int move;
-
-		if(pos.row+1 < 5){
-			max = fnet.forward(new double [2]{pos.row+1, pos.col});
-			move = 2;
-		}
-		if(pos.row-1 >= 0){
-			qval = fnet.forward(new double [2]{pos.row-1, pos.col});
-			if(max < qval){
-				max = qval;
-				move = 3;
+		if(((double) rand() / (RAND_MAX))>0.3){
+			if(pos.row+1 < 5){
+				max = fnet.forward(new double [2]{pos.row+1, pos.col});
+				move = 2;
 			}
-		}
-		if(pos.col-1 >= 0){
-			qval = fnet.forward(new double [2]{pos.row, pos.col-1});
-			if(max < qval){
-				max = qval;
-				move = 1;
+			if(pos.row-1 >= 0){
+				qval = fnet.forward(new double [2]{pos.row-1, pos.col});
+				if(max < qval){
+					max = qval;
+					move = 3;
+				}
 			}
-		}
-		if(pos.col+1 < 5){
-			qval = fnet.forward(new double [2]{pos.row, pos.col+1});
-			if(max < qval){
-				max = qval;
-				move = 0;
+			if(pos.col-1 >= 0){
+				qval = fnet.forward(new double [2]{pos.row, pos.col-1});
+				if(max < qval){
+					max = qval;
+					move = 1;
+				}
 			}
+			if(pos.col+1 < 5){
+				qval = fnet.forward(new double [2]{pos.row, pos.col+1});
+				if(max < qval){
+					max = qval;
+					move = 0;
+				}
+			}
+		}else{	
+			//choose actions that are available randomyl.
+			move = rand() % 4;
+		
 		}
 	return move;
 }
 
-void update(FasterNet fnet, Pos pos){
+int reward(Pos pos){
+	if(pos.row==4 & pos.col==4){
+		return 10;
+	}
+	return -1;
+}
 
+FasterNet update(FasterNet fnet, Pos pos, Pos new_pos){
+	fnet.fit(new double [2]{pos.row, pos.col}, reward(new_pos) + fnet.forward(new double[2]{new_pos.row, new_pos.col}));
+	return fnet;
+}
+
+void value_fcn(FasterNet fnet){
+	for(int i=0;i<5;i++){
+		for(int j=0;j<5;j++){
+			cout << fnet.forward(new double [2]{double(i), double(j)}) << "  ";
+		}
+		cout << endl;
+	}
 }
 
 //keras: 2800 microseconds
@@ -132,26 +154,23 @@ int main(){
 
 	FasterNet fnet;
 	fnet.initialize();
+	value_fcn(fnet);
 
 	Pos pos = Pos{1, 3};
-	
-	while (1) 
-	{	
+	Pos new_pos;
+
+	while (1){ 
 		cout << pos.row <<", " <<pos.col << endl;
-		pos = move(pos, select_action(pos, fnet));
-		if(pos.row==4 & pos.col==4){
-			cout << pos.row <<", " <<pos.col << endl;
+		new_pos = move(pos, select_action(pos, fnet));
+		if(new_pos.row==4 & new_pos.col==1){
+			cout << new_pos.row <<", " <<new_pos.col << endl;
 			break;
 		}
-		update(fnet, pos);
+		fnet = update(fnet, pos, new_pos);
+		///value_fcn(fnet);
+		pos = new_pos;
 	}
 
-	for(int i=0;i<5;i++){
-		for(int j=0;j<5;j++){
-			cout << fnet.forward(new double [2]{double(i), double(j)}) << "  ";
-		}
-		cout << endl;
-	}
 	
 	
 	return 0;
