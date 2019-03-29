@@ -1,8 +1,10 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 class FasterNet {
 
@@ -169,11 +171,14 @@ void value_fcn(FasterNet fnet){
 //fortran: 850 microseconds- seem to be fluctuating between 1200-170 us
 int main(){
 
+	auto start = high_resolution_clock::now();
 	FasterNet fnet;
 	fnet.initialize();
+	
 	//value_fcn(fnet);
 	int finalRow = 4;
 	int finalCol = 4;
+
 
 	for(int i=0;i<10;i++){
 		Pos pos = Pos{0, 0};
@@ -206,5 +211,9 @@ int main(){
 		pos = new_pos;
 	}
 	cout << "Testing complete!" << endl;
+	
+	auto stop = high_resolution_clock::now();
+	auto duration = duration_cast<microseconds>(stop-start);
+	cout << "Time: " << duration.count() << endl;
 	return 0;
 }
