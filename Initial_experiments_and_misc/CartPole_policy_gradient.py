@@ -128,6 +128,11 @@ for episode in range(max_episodes):
             episode_states = np.vstack(np.array(episode_states))
             episode_actions_one_hot = np.vstack(np.array(episode_actions_one_hot))
 
+            print(episode_states[0])
+            print(episode_actions_one_hot[0])
+            print(discounted_episode_rewards[0])
+
+
             train_fn([episode_states, episode_actions_one_hot, discounted_episode_rewards])
 
             # Reset the transition stores
