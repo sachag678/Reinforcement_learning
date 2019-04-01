@@ -18,7 +18,7 @@ class GridWorldEnv(py_environment.PyEnvironment):
         self._action_spec = array_spec.BoundedArraySpec(
             shape=(), dtype=np.int32, minimum=0, maximum=3, name='action')
         self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(4,), dtype=np.int32, minimum=0, name='observation')
+            shape=(4,), dtype=np.int32, minimum=[0,0,0,0],maximum=[9,9,9,9], name='observation')
         self._state=[0,0,5,5] #represent the (row, col, frow, fcol) of the player and the finish
         self._episode_ended = False
 
@@ -44,11 +44,14 @@ class GridWorldEnv(py_environment.PyEnvironment):
             self._episode_ended = True
 
         if self._episode_ended:
-            reward = 10
+            if self.game_over():
+                reward = 100
+            else:
+                reward = 0
             return ts.termination(np.array(self._state, dtype=np.int32), reward)
         else:
             return ts.transition(
-                np.array(self._state, dtype=np.int32), reward=-1.0, discount=0.9)
+                np.array(self._state, dtype=np.int32), reward=0, discount=0.9)
 
     def move(self, action):
         row, col, frow, fcol = self._state[0],self._state[1],self._state[2],self._state[3]
@@ -73,14 +76,14 @@ if __name__ == '__main__':
     env = GridWorldEnv()
     utils.validate_py_environment(env, episodes=5)
 
-    tl_env = wrappers.TimeLimit(env, duration=20)
+    tl_env = wrappers.TimeLimit(env, duration=50)
 
     time_step = tl_env.reset()
     print(time_step)
     rewards = time_step.reward
 
-    for i in range(21):
-        action = np.random.choice([1])
+    for i in range(100):
+        action = np.random.choice([0,1,2,3])
         time_step = tl_env.step(action)
         print(time_step)
         rewards += time_step.reward
