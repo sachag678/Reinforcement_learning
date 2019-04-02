@@ -18,7 +18,7 @@ class GridWorldEnv(py_environment.PyEnvironment):
         self._action_spec = array_spec.BoundedArraySpec(
             shape=(), dtype=np.int32, minimum=0, maximum=3, name='action')
         self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(4,), dtype=np.int32, minimum=[0,0,0,0],maximum=[9,9,9,9], name='observation')
+            shape=(4,), dtype=np.int32, minimum=[0,0,0,0],maximum=[5,5,5,5], name='observation')
         self._state=[0,0,5,5] #represent the (row, col, frow, fcol) of the player and the finish
         self._episode_ended = False
 
@@ -59,13 +59,13 @@ class GridWorldEnv(py_environment.PyEnvironment):
             if row - 1 >= 0:
                 self._state[0] -= 1
         if action == 1: #up
-            if row + 1 < 10:
+            if row + 1 < 6:
                 self._state[0] += 1
         if action == 2: #left
             if col - 1 >= 0:
                 self._state[1] -= 1
         if action == 3: #right
-            if col + 1  < 10:
+            if col + 1  < 6:
                 self._state[1] += 1
 
     def game_over(self):

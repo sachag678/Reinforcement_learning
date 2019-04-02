@@ -17,6 +17,7 @@ from tf_agents.drivers import py_driver
 from tf_agents.drivers import dynamic_episode_driver
 
 from gridworld import GridWorldEnv
+import matplotlib.pyplot as plt
 
 def compute_avg_return(environment, policy, num_episodes=10):
 
@@ -35,7 +36,7 @@ def compute_avg_return(environment, policy, num_episodes=10):
     avg_return = total_return / num_episodes
     return avg_return.numpy()[0]
 
-num_iterations = 20000  # @param
+num_iterations = 10000  # @param
 
 initial_collect_steps = 1000  # @param
 collect_steps_per_iteration = 1  # @param
@@ -83,14 +84,14 @@ replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
         batch_size=train_env.batch_size,
         max_length=replay_buffer_capacity)
 
-#replay_observer = [replay_buffer.add_batch]
+replay_observer = [replay_buffer.add_batch]
 
-#train_metrics = [
-#            tf_metrics.NumberOfEpisodes(),
-#            tf_metrics.EnvironmentSteps(),
-#            tf_metrics.AverageReturnMetric(),
-#            tf_metrics.AverageEpisodeLengthMetric(),
-#]
+train_metrics = [
+            tf_metrics.NumberOfEpisodes(),
+            tf_metrics.EnvironmentSteps(),
+            tf_metrics.AverageReturnMetric(),
+            tf_metrics.AverageEpisodeLengthMetric(),
+]
 
 def collect_step(environment, policy):
     time_step = environment.current_time_step()
@@ -101,32 +102,37 @@ def collect_step(environment, policy):
     # Add trajectory to the replay buffer
     replay_buffer.add_batch(traj)
 
-for _ in range(1000):
-        collect_step(train_env, tf_agent.collect_policy)
+#for _ in range(1000):
+#        collect_step(train_env, tf_agent.collect_policy)
 
 dataset = replay_buffer.as_dataset(
             num_parallel_calls=3,
             sample_batch_size=batch_size,
     num_steps=2).prefetch(3)
 
-#driver = dynamic_episode_driver.DynamicEpisodeDriver(
-#            train_env,
-#            collect_policy,
-#            observers=replay_observer + train_metrics,
-#    num_episodes=2)
+driver = dynamic_step_driver.DynamicStepDriver(
+            train_env,
+            collect_policy,
+            observers=replay_observer + train_metrics,
+    num_steps=1)
 
 iterator = iter(dataset)
 
 print(compute_avg_return(eval_env, tf_agent.policy, num_eval_episodes))
 
-#final_time_step, policy_state = driver.run()
 tf_agent.train = common.function(tf_agent.train)
 tf_agent.train_step_counter.assign(0)
 
+final_time_step, policy_state = driver.run()
+
+for i in range(1000):
+    final_time_step, _ = driver.run(final_time_step, policy_state)
+
+episode_len = []
 for i in range(num_iterations):
-    #final_time_step, policy_state = driver.run(final_time_step, policy_state)
-    for _ in range(1):
-        collect_step(train_env, tf_agent.collect_policy)
+    final_time_step, _ = driver.run(final_time_step, policy_state)
+    #for _ in range(1):
+    #    collect_step(train_env, tf_agent.collect_policy)
 
     experience, _ = next(iterator)
     train_loss = tf_agent.train(experience=experience)
@@ -134,7 +140,11 @@ for i in range(num_iterations):
 
     if step % log_interval == 0:
         print('step = {0}: loss = {1}'.format(step, train_loss.loss))
+        episode_len.append(train_metrics[3].result().numpy())
+        print('Average episode length: {}'.format(train_metrics[3].result().numpy()))
 
     if step % eval_interval == 0:
         avg_return = compute_avg_return(eval_env, tf_agent.policy, num_eval_episodes)
         print('step = {0}: Average Return = {1}'.format(step, avg_return))
+plt.plot(episode_len)
+plt.show()
