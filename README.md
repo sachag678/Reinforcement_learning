@@ -32,4 +32,5 @@ which are used to learn the optimum path to the gold while avoiding the monster 
 The next steps are to implement the NN versions of the State Value and State Action Value methods using keras.
 
 ### Neural Network Implementation
-To contain a neural network implementation using newton's method for updating the weights.
+Contains implementations of a NN in C++, python, Fortran to determine how fast things are comparatively. I also used vanilla C++ vs Eigen which is used as the backend of tensorflow. 
+
