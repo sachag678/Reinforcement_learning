@@ -48,7 +48,7 @@ double* NeuralNetwork::createMatrix(int N, int M){
 
 	for(int i=0;i<N;i++){
 		for(int j=0;j<M;j++){
-			w[getSingleIndex(i, j, M)] = (i+1)*(j+1);//((double) rand() / (RAND_MAX));
+			w[getSingleIndex(i, j, M)] = (double) rand() / (RAND_MAX);
 		}
 	}
 
@@ -70,35 +70,40 @@ void NeuralNetwork::printNetwork(){
 double* NeuralNetwork::forward(double input[]){
 	//multiply input with the weights using dot product
 	double* output = new double[weights_size[num_weights]];
+	double * values = input;
 	for(int k=0;k<num_weights;k++){
 		double* inner = new double[getLayerSize(k+1, k+2)];
 		for(int i=0;i<weights_size[k+1];i++){
 			double sum = 0;
 			for(int j=0;j<weights_size[k];j++){
-				sum = sum + input[j]*weights[k][getSingleIndex(i, j, weights_size[k+1])];
+				sum = sum + values[j]*weights[k][getSingleIndex(i, j, weights_size[k+1])];
 			}
 			inner[i] = sum;
 		}
 		if(k+1==num_weights){
 			output = inner;
 		}else{
-			input = inner;
+			values = inner;
 		}
 	}
+
+	delete[] values;
 
 	return output;
 }
 
-
-
 int main(){
-	int* params = new int[3]{2, 2, 1};
+	int* params = new int[3]{2, 8, 1};
 	NeuralNetwork nn = NeuralNetwork(params, 3);
-	nn.printNetwork();
 
 	double* input = new double[2]{2, 1};
-	double* output = nn.forward(input);
 	
-	cout << "Output from Network for input: {2, 1}"<< endl;
-	cout << output[0] << endl;
+	//running the timing test
+	auto start = high_resolution_clock::now();
+	for(int i=0;i<100000;i++){
+		nn.forward(input);
+	}
+	auto stop = high_resolution_clock::now();
+	auto duration = duration_cast<microseconds>(stop-start);
+	cout << "Time: " << duration.count()/1000000.0 << endl;
 }
