@@ -6,13 +6,11 @@ class Tensor2D{
 		double* data;
 		int rowSize;
 		int colSize;
-		bool stack;
 
 		Tensor2D(int rSize, int cSize, bool randomInit = true){
 			rowSize = rSize;
 			colSize = cSize;
 			data = new double[rowSize*colSize];
-			stack = false;
 
 			if(randomInit){
 				for(int i=0;i<rowSize*colSize;i++){
@@ -25,13 +23,10 @@ class Tensor2D{
 			rowSize = rSize;
 			colSize = cSize;
 			data = array;
-			stack = true;
 		}
 
 		~Tensor2D(){
-			if(!stack){
-				delete[] data;
-			}
+			delete[] data;
 			data = nullptr;
 		}
 
@@ -120,7 +115,7 @@ void test(){
 	input[4] = 6;
 	input[5] = 5;
 
-	Tensor2D t3(1, 6, input);
+	Tensor2D t3(1, 6, &input);
 
 	t3.Print();
 
