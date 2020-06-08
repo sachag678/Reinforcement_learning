@@ -10,6 +10,10 @@ def df(x1, x2):
     return -2 * x1 + 8, -8 * x2 + 16
 
 
+def hessian():
+    return np.array([[-2, 0],[0, -8]])
+
+
 def dfsingle(t, x1, x2, x1prime, x2prime):
     return (
         -2 * x1prime * (x1 + x1prime * t)
@@ -62,42 +66,48 @@ def bisection_search(df, x1, x2, x1prime, x2prime):
         x = (xl + xr) / 2.0
     return x
 
-# initial
-points = []
-points.append(start)
+# plot
+def plot(points):
+    xs = []
+    ys = []
+    for point in points:
+        xs.append(point[0])
+        ys.append(point[1])
 
-print("start: {}, f(start): {}".format(start, f(*start)))
-grad_x = df(*start)
-t = bisection_search(dfsingle, *start, *grad_x)
-new = (start[0] + t * grad_x[0], start[1] + t * grad_x[1])
-print(
-    "grad: ({}, {}) | t: {:.4}, new: ({:.4}, {:.4}), f(new): {:.4}".format(
-        *grad_x, t, *new, f(*new)
-    )
-)
+    import matplotlib.pyplot as plt
+    plt.plot(xs, ys, "ro--")
+    plt.show()
 
-# iterate
-for i in range(10):
-    points.append(new)
-    grad_x = df(*new)
-    t = bisection_search(dfsingle, *new, *grad_x)
-    new = (new[0] + t * grad_x[0], new[1] + t * grad_x[1])
+def findMaxima(num_iter):
+    points = []
+    points.append(start)
+
+    print("start: {}, f(start): {}".format(start, f(*start)))
+    grad_x = df(*start)
+    t = bisection_search(dfsingle, *start, *grad_x)
+    new = (start[0] + t * grad_x[0], start[1] + t * grad_x[1])
     print(
-        "grad: ({:.4}, {:.4}) | t: {:.4}, new: ({:.4}, {:.4}), f(new): {:.4}".format(
+        "grad: ({}, {}) | t: {:.4}, new: ({:.4}, {:.4}), f(new): {:.4}".format(
             *grad_x, t, *new, f(*new)
         )
     )
 
-# plot
-xs = []
-ys = []
-for point in points:
-    xs.append(point[0])
-    ys.append(point[1])
+    # iterate
+    for i in range(num_iter):
+        points.append(new)
+        grad_x = df(*new)
+        t = bisection_search(dfsingle, *new, *grad_x)
+        new = (new[0] + t * grad_x[0], new[1] + t * grad_x[1])
+        print(
+            "grad: ({:.4}, {:.4}) | t: {:.4}, new: ({:.4}, {:.4}), f(new): {:.4}".format(
+                *grad_x, t, *new, f(*new)
+            )
+        )
+    return points
 
-#import matplotlib.pyplot as plt
 
-#plt.plot(xs, ys, "ro--" )
-#plt.show()
-
-plot3d(f, points)
+if __name__ == "__main__":
+    # initial
+    points = findMaxima(10)
+    plot(points)
+    #plot3d(f, points)
