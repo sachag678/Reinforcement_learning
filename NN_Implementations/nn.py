@@ -9,20 +9,21 @@ class NN:
             self.weights.append(np.random.randn(layers[i], layers[i+1]))
 
     def forward(self, input_):
-        values = input_
         for w in self.weights:
-            values = np.dot(values, w)
-        return values
+            input_ = np.dot(input_, w)
+        return input_
 
 
 
 if __name__ == "__main__":
-    layer_size = [2, 8, 1]
+    layer_size = [2, 50, 1]
     nn = NN(layer_size)
+
+    input_val = np.random.randn(1,2)
 
     start = time.time()
     for i in range(100000):
-        nn.forward(np.array([2, 1]))
+        nn.forward(input_val)
     end = time.time()
     print(end - start)
 
