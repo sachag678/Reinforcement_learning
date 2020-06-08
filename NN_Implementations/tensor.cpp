@@ -19,15 +19,21 @@ class Tensor2D{
 			}
 		}
 
+		Tensor2D(int rSize, int cSize, double* array){
+			rowSize = rSize;
+			colSize = cSize;
+			data = array;
+		}
+
 		Tensor2D operator[](int index){
 			if(rowSize!=1){
-				Tensor2D result(1, colSize);
+				Tensor2D result(1, colSize, false);
 				for(int j = 0; j<colSize; j++){
 					result.data[j] = data[index*colSize + j];
 				}
 				return result;
 			}else{
-				Tensor2D result(1, 1);
+				Tensor2D result(1, 1, false);
 				result.data[index] = data[index];
 				return result;
 			}
@@ -38,7 +44,7 @@ class Tensor2D{
 				throw std::invalid_argument( "ERROR: Inner col and row size do not match.");
 			}
 
-			Tensor2D result(rowSize, other.colSize);
+			Tensor2D result(rowSize, other.colSize, false);
 
 			for(int i = 0; i < rowSize; i++){
 				for(int j = 0; j < other.colSize; j++){
@@ -95,13 +101,34 @@ void test(){
 	t.mmul(t2).Print();
 
 	t[0][0].Print();
+
+	double input[6];
+	input[0] = 1;
+	input[1] = 2;
+	input[2] = 4;
+	input[3] = 3;
+	input[4] = 6;
+	input[5] = 5;
+
+	Tensor2D t3(1, 6, input);
+
+	t3.Print();
+
+	Tensor2D t4(1, 6, false);
+
+	t4.Print();
 }
 
-int main(){
+void ff(){
+
 	Tensor2D in(1, 50);
 	Tensor2D l1(50, 1024);
 	Tensor2D l2(1024, 256);
 	Tensor2D l3(256, 10);
 
 	in.mmul(l1).mmul(l2).mmul(l3).Print();
+}
+
+int main(){
+	test();
 }
