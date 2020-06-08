@@ -6,11 +6,13 @@ class Tensor2D{
 		double* data;
 		int rowSize;
 		int colSize;
+		bool stack;
 
 		Tensor2D(int rSize, int cSize, bool randomInit = true){
 			rowSize = rSize;
 			colSize = cSize;
 			data = new double[rowSize*colSize];
+			stack = false;
 
 			if(randomInit){
 				for(int i=0;i<rowSize*colSize;i++){
@@ -23,6 +25,14 @@ class Tensor2D{
 			rowSize = rSize;
 			colSize = cSize;
 			data = array;
+			stack = true;
+		}
+
+		~Tensor2D(){
+			if(!stack){
+				delete[] data;
+			}
+			data = nullptr;
 		}
 
 		Tensor2D operator[](int index){
