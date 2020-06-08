@@ -84,6 +84,8 @@ replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
         batch_size=train_env.batch_size,
         max_length=replay_buffer_capacity)
 
+print("Batch Size: {}".format(train_env.batch_size))
+
 replay_observer = [replay_buffer.add_batch]
 
 train_metrics = [
@@ -129,6 +131,7 @@ for i in range(1000):
     final_time_step, _ = driver.run(final_time_step, policy_state)
 
 episode_len = []
+step_len = []
 for i in range(num_iterations):
     final_time_step, _ = driver.run(final_time_step, policy_state)
     #for _ in range(1):
@@ -141,10 +144,13 @@ for i in range(num_iterations):
     if step % log_interval == 0:
         print('step = {0}: loss = {1}'.format(step, train_loss.loss))
         episode_len.append(train_metrics[3].result().numpy())
+        step_len.append(step)
         print('Average episode length: {}'.format(train_metrics[3].result().numpy()))
 
     if step % eval_interval == 0:
         avg_return = compute_avg_return(eval_env, tf_agent.policy, num_eval_episodes)
         print('step = {0}: Average Return = {1}'.format(step, avg_return))
-plt.plot(episode_len)
+plt.plot(step_len, episode_len)
+plt.xlabel('Episodes')
+plt.ylabel('Average Episode Length (Steps)')
 plt.show()
