@@ -19,15 +19,21 @@ class Tensor2D{
 			}
 		}
 
+		Tensor2D(const Tensor2D& other){
+			rowSize = other.rowSize;
+			colSize = other.colSize;
+			data = other.data;
+		}
+
+		Tensor2D& operator=(const Tensor2D& other){
+			std::cout << "inside assignment constructor" << std::endl;
+			return *this;
+		}
+
 		Tensor2D(int rSize, int cSize, double* array){
 			rowSize = rSize;
 			colSize = cSize;
 			data = array;
-		}
-
-		~Tensor2D(){
-			delete[] data;
-			data = nullptr;
 		}
 
 		Tensor2D operator[](int index){
@@ -57,6 +63,7 @@ class Tensor2D{
 					for(int k = 0; k < colSize; k ++){
 						sum += data[i*colSize + k]*other.data[k*other.colSize + j];
 					}
+					std::cout << sum << std::endl;
 					result.data[i*colSize + j] = sum;
 				}
 			}
@@ -98,30 +105,32 @@ void test(){
 
 	Tensor2D t(2, 4);
 
+	t.Print();
+
 	Tensor2D t2(4, 1);
 
-	t.Print();
 	t2.Print();
 
 	t.mmul(t2).Print();
 
-	t[0][0].Print();
+	Tensor2D t5 = t[0];
+	std::cout << "after return" << std::endl;
+	std::cout << t5.data[0] << std::endl;
+	std::cout << t5.data[1] << std::endl;
+	std::cout << t5.data[2] << std::endl;
+	std::cout << t5.data[3] << std::endl;
 
-	double input[6];
+	/*double* input = new double[6];
 	input[0] = 1;
 	input[1] = 2;
 	input[2] = 4;
 	input[3] = 3;
 	input[4] = 6;
 	input[5] = 5;
+*/
+	//Tensor2D t3(1, 6, input);
 
-	Tensor2D t3(1, 6, &input);
-
-	t3.Print();
-
-	Tensor2D t4(1, 6, false);
-
-	t4.Print();
+	//Tensor2D t4(1, 5, false);
 }
 
 void ff(){

@@ -11,6 +11,7 @@ class NN:
     def forward(self, input_):
         for w in self.weights:
             input_ = np.dot(input_, w)
+            input_[input_<0] = 0
         return input_
 
 
@@ -21,11 +22,8 @@ if __name__ == "__main__":
 
     input_val = np.random.randn(1,2)
 
-    start = time.time()
-    for i in range(100000):
-        nn.forward(input_val)
-    end = time.time()
-    print(end - start)
+    res = nn.forward(input_val)
+    print(res)
 
 
 
