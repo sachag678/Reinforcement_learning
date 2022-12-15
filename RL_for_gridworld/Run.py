@@ -1,6 +1,9 @@
 """Sacha Gunaratne | github@sachag678"""
+import random
+
 import numpy as np
 import matplotlib.pyplot as plt
+import tqdm
 
 from Gridworld import init_state, move, oh_no_dragon, found_gold
 from Agents.RandomAgent import RandomAgent
@@ -9,6 +12,8 @@ from Agents.GreedyStateActionValueAgent import GreedyStateActionValueAgent
 from Tabular_methods.State_Value.MonteCarloTabular import MonteCarloTabular
 from Tabular_methods.State_Value.TemporalDifferenceTabular import TemporalDifferenceTabular
 from Tabular_methods.Action_State_Value.SARSATabular import SARSATabular
+from Tabular_methods.Action_State_Value.QlearningTabular import QLearningTabular
+
 
 def train(max_episodes, agent):
     """Run episodes of gridworld and train the agent.
@@ -22,13 +27,20 @@ def train(max_episodes, agent):
     """
     episode_rewards = []
 
-    for epoch in range(max_episodes):
+    for epoch in tqdm.tqdm(range(max_episodes)):
         states, rewards, actions = [], [], []
         state, done = init_state()
+
+        states.append(state)
+
+        move_num = 0
 
         while not done:
             action = agent.choose_action(state)
             new_state, reward, done = move(action, state)
+
+            if move_num > 100:
+                done = True
 
             states.append(new_state)
             rewards.append(reward)
@@ -37,12 +49,15 @@ def train(max_episodes, agent):
             if done:
                 episode_rewards.append(np.array(rewards).sum())
                 agent.update(states, rewards, actions)
-            
+
             if agent.epsilon >= 0.05:
-                agent.epsilon -= 1/max_episodes
+                agent.epsilon -= 1 / max_episodes
             state = new_state
-    
+
+            move_num += 1
+
     return agent, episode_rewards
+
 
 def test(agent):
     """Test the trained agent in a single episode of the gridworld game."""
@@ -60,13 +75,14 @@ def test(agent):
                 print('You lost!')
             else:
                 print('Found gold!')
-        
+
         state = new_state
 
         if num_moves > 20:
             print('Not enough learning!')
             break
-    
+
+
 def moving_average(dist, window):
     """Calculate the moving average of a distribution of numbers given a time window."""
     if window >= len(dist):
@@ -76,23 +92,17 @@ def moving_average(dist, window):
         ma.append(np.array(dist[i: i + window]).mean())
     return ma
 
+
 if __name__ == '__main__':
-    model = TemporalDifferenceTabular()
-    agent = GreedyStateValueAgent(model = model, epsilon=0.5)
+    random.seed(42)
+    np.random.seed(42)
+    model = QLearningTabular()
+    agent = GreedyStateActionValueAgent(model=model, epsilon=0.9)
     agent, episode_rewards = train(100, agent)
     agent.epsilon = 0
     test(agent)
-    
+
     agent.display_model()
 
     plt.plot(moving_average(episode_rewards, 10))
     plt.show()
-
-
-
-
-
-    
-
-
-

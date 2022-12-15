@@ -8,6 +8,7 @@ class MonteCarloTabular(StateValueTabular):
         """Update the model using the states, rewards using the iterative MC update.
             V(s_t) = V(s_t) + alpha(G_t - V(s_t))
         """
+        states = states[1:]  # handle the fact that we are doing both state-value and state-action
         discounted_rewards = self.discount_reward(rewards)
         for state, reward in zip(states, discounted_rewards):
             self.state_values[self.convert_to_immutable(state)] = self.state_values[self.convert_to_immutable(state)] + self.alpha * (reward - self.get_value(state))

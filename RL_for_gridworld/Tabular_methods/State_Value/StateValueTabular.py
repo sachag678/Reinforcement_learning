@@ -37,7 +37,7 @@ class StateValueTabular():
             index = np.where(np.asarray(k).reshape((3, 4, 4))[0] == 1)
             state_value_visuals[index[0][0]][index[1][0]] = v
         
-        sns.heatmap(state_value_visuals, linewidth=0.5)
+        sns.heatmap(state_value_visuals, annot=True, linewidth=0.5)
         plt.show()
     
     def batch_update(self, states, rewards, actions):

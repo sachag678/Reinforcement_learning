@@ -5,7 +5,7 @@ import numpy as np
 class StateActionValueTabular():
     """Abstract class for learning optimal behavior using the state action value methods."""
 
-    def __init__(self, alpha = 0.01, gamma = 1, num_actions = 4):
+    def __init__(self, alpha = 1, gamma = 0.9, num_actions = 4):
 
         def value_factory():
             """Used to initialize the values to zeros."""

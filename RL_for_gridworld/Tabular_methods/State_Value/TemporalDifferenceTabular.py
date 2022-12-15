@@ -8,6 +8,7 @@ class TemporalDifferenceTabular(StateValueTabular):
         """Update the model using the states, rewards using the simple TD(0) update.
             V(s_t) = V(s_t) + alpha((R_t+1+gamma*V(s_t+1)) - V(s_t))
         """
+        states = states[1:]
         for index, (state, reward) in enumerate(zip(states, rewards)):
             if index < len(states) - 1:
                 TD_target = reward + self.gamma * self.get_value(states[index + 1])
