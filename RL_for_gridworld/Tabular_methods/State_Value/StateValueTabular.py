@@ -39,6 +39,16 @@ class StateValueTabular():
         
         sns.heatmap(state_value_visuals, annot=True, linewidth=0.5)
         plt.show()
+
+    def get_model_fig_data(self):
+        """Visualizes the state_value function."""
+        state_value_visuals = np.zeros((4, 4))
+        for k, v in self.state_values.items():
+            index = np.where(np.asarray(k).reshape((3, 4, 4))[0] == 1)
+            state_value_visuals[index[0][0]][index[1][0]] = np.round(v, 3)
+
+        return state_value_visuals
+
     
     def batch_update(self, states, rewards, actions):
         """Update the model in the manner specific to the type of updater."""

@@ -32,10 +32,32 @@ class StateActionValueTabular():
         """Display the action with the highest probability in each square. This can be used to trace the path 
         to the final destination.
         """
-        actions = ['D', 'U', 'L', 'R']
+        actions = ['Down', 'Up', 'Left', 'Right']
         best_action_visuals = np.ndarray((4, 4), dtype=object)
         for k, v in self.state_action_values.items():
             index = np.where(np.asarray(k).reshape((3, 4, 4))[0] == 1)
             best_action_visuals[index[0][0]][index[1][0]] = actions[int(np.array(v).argmax())]
         
         print(best_action_visuals)
+
+    def get_model_fig_data(self):
+        actions = ['Down', 'Up', 'Left', 'Right']
+        best_action_visuals = np.ndarray((4, 4), dtype=object)
+        for k, v in self.state_action_values.items():
+            index = np.where(np.asarray(k).reshape((3, 4, 4))[0] == 1)
+            s = ""
+
+            max_idx = int(np.array(v).argmax())
+
+            for idx, (action, value) in enumerate(zip(actions, v)):
+                if max_idx == idx:
+                    s += "<b>"
+                s += f"{action}: {np.round(value, 2)}"
+                if max_idx == idx:
+                    s += "</b>"
+                if idx < 3:
+                    s += "<br>"  # newline
+
+            best_action_visuals[index[0][0]][index[1][0]] = s
+
+        return best_action_visuals

@@ -27,7 +27,7 @@ def train(max_episodes, agent):
     """
     episode_rewards = []
 
-    for epoch in tqdm.tqdm(range(max_episodes)):
+    for epoch in range(max_episodes):
         states, rewards, actions = [], [], []
         state, done = init_state()
 
@@ -59,28 +59,39 @@ def train(max_episodes, agent):
     return agent, episode_rewards
 
 
-def test(agent):
+def test(agent, verbose=True):
     """Test the trained agent in a single episode of the gridworld game."""
 
     state, done = init_state()
     num_moves = 0
+    output = ""
 
     while not done:
         new_state, _, done = move(agent.choose_action(state), state)
         num_moves += 1
 
         if done:
-            print('Number of Moves: ', num_moves)
+            if verbose:
+                print('Number of Moves: ', num_moves)
+            output += f'Number of Moves: {num_moves} (6 is Optimal) \n\n'
             if oh_no_dragon(new_state):
-                print('You lost!')
+                if verbose:
+                    print('You lost!')
+                output += "You ran into the dragon and died!"
             else:
-                print('Found gold!')
+                if verbose:
+                    print('Found gold!')
+                output += "You found the gold! Huzzah!"
 
         state = new_state
 
         if num_moves > 20:
-            print('Not enough learning!')
+            if verbose:
+                print('Not enough learning!')
+            output += "Not enough learning"
             break
+
+    return output
 
 
 def moving_average(dist, window):
@@ -96,11 +107,11 @@ def moving_average(dist, window):
 if __name__ == '__main__':
     random.seed(42)
     np.random.seed(42)
-    model = QLearningTabular()
+    model = SARSATabular()
     agent = GreedyStateActionValueAgent(model=model, epsilon=0.9)
     agent, episode_rewards = train(100, agent)
     agent.epsilon = 0
-    test(agent)
+    _ = test(agent)
 
     agent.display_model()
 
