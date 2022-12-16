@@ -10,6 +10,7 @@ class SARSATabular(StateActionValueTabular):
         """Implements the SARSA update.
             Q(S, A) = Q(S, A) + alpha ((R + gamma * Q(S', A')) - Q(S, A))
         """
+        states = states[:-1]  # drop last state to account for the combining state-action and state-value
         for index, (state, reward, action) in enumerate(zip(states, rewards, actions)):
             if index < len(states) - 1:
                 actions_vals = self.get_value(states[index + 1])
