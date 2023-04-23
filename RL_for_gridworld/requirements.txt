@@ -1,4 +1,7 @@
-plotly==5.14.1
-numpy
-matplotlib
-tqdm
+keras==2.12.0
+matplotlib==3.5.1
+numpy==1.20.0
+plotly==5.11.0
+seaborn==0.12.2
+streamlit==1.11.0
+tqdm==4.64.1
