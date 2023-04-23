@@ -1,2 +1,4 @@
 plotly==5.14.1
 numpy
+matplotlib
+tqdm
