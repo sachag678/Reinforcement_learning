@@ -1,20 +1,21 @@
 import tensorflow as tf
 
 from tf_agents.agents.dqn import dqn_agent
-from tf_agents.agents.dqn import q_network
+from tf_agents.networks import q_network
 from tf_agents.drivers import dynamic_step_driver
 from tf_agents.environments import tf_py_environment
-from tf_agents.environments import trajectory
 from tf_agents.environments import wrappers
-from tf_agents.metrics import metric_utils
+from tf_agents.eval import metric_utils
 from tf_agents.metrics import tf_metrics
 from tf_agents.policies import random_tf_policy
 from tf_agents.replay_buffers import tf_uniform_replay_buffer
+from tf_agents.trajectories import trajectory
 from tf_agents.utils import common
 from tf_agents.metrics import py_metrics
 from tf_agents.metrics import tf_metrics
 from tf_agents.drivers import py_driver
 from tf_agents.drivers import dynamic_episode_driver
+from tf_agents.utils import common
 
 from gridworld import GridWorldEnv
 import matplotlib.pyplot as plt
@@ -71,7 +72,7 @@ tf_agent = dqn_agent.DqnAgent(
         train_env.action_spec(),
         q_network=q_net,
         optimizer=optimizer,
-        td_errors_loss_fn = dqn_agent.element_wise_squared_loss,
+        td_errors_loss_fn = common.element_wise_squared_loss,
         train_step_counter=train_step_counter)
 
 tf_agent.initialize()
